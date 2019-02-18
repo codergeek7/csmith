@@ -69,6 +69,11 @@
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
+/*
+input - block id
+output - actual block containing id
+description - iterate on every block of every function
+*/
 Block* find_block_by_id(int blk_id)
 {
 	const vector<Function*>& funcs = get_all_functions();
