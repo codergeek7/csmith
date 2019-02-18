@@ -102,6 +102,10 @@ get_fact_mgr(const CGContext* cg)
 	return get_fact_mgr_for_func(cg->get_current_func());
 }
 
+/*
+input - string
+output - return function name contained in FuncList
+*/
 const Function*
 find_function_by_name(const string& name)
 {
@@ -126,6 +130,11 @@ find_function_in_set(const vector<const Function*>& set, const Function* f)
 	return -1;
 }
 
+/*
+input - variable
+output - returns block containing variable
+Description - iterates on every block of each function in FuncList
+*/
 const Block*
 find_blk_for_var(const Variable* v)
 {
