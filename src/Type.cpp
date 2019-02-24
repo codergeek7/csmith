@@ -2107,8 +2107,9 @@ Type::printf_directive(void) const
 	return ret;
 }
 
-/*
- *
+/*cleares following data structures holding types
+   AllTypes = List of all types used in the program
+ * derived_types = ? (can't figure out )(may be same as above)
  */
 void
 Type::doFinalization(void)
