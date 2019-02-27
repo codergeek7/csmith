@@ -1205,7 +1205,7 @@ Variable::compatible(const Variable *v) const
 }
 /*
 short:
-	prints the transparent_crc() part for checksum calculations
+	prints the transparent_crc() part for checksum calculations neglect pointers
 TLDR:
 	//IF variable is struct/union then compute for each field_vars of that variable
 		//ex. struct S0 g_111;
@@ -1259,7 +1259,7 @@ Variable::hash(std::ostream& out) const
 
 // --------------------------------------------------------------
 /*
-	printd hash for a simgle variable passed to it
+	prints hash for a simgle variable passed to it
 */
 int
 HashVariable(Variable *var, std::ostream *pOut)
