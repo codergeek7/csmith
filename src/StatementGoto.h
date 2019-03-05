@@ -70,8 +70,8 @@ public:
 	const Expression &test;
 	const Statement* dest;
 //*changehere added mutable **/
-	std::string label;
-	mutable std::string other_name_for_label;
+	std::string label; //actual label
+	mutable std::string other_name_for_label; //alternate label
 	std::vector<const Variable*> init_skipped_vars;
 	static std::map<const Statement*, std::string> stm_labels;
 
