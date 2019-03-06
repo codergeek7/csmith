@@ -265,7 +265,16 @@ StatementGoto::~StatementGoto(void)
 }
 
 /*
- *
+	Input - out -> object of ostream for printing
+		indent -> indentation
+
+	Output - 1. if cmd line is set for computed goto
+			if()
+				goto *target[];
+
+		2. else print
+			if()
+				goto lbl_234;
  */
 void
 StatementGoto::Output(std::ostream &out, FactMgr* /*fm*/, int indent) const
@@ -455,7 +464,16 @@ StatementGoto::doFinalization(void)
 {
 	stm_labels.clear();
 }
-//*changehere*//
+
+/*
+	Input - addr_labels - vector containing &&labels
+
+	Use - searches current label in addr_labels and returns index i.e. position
+
+	Output -
+		earlier - goto lbl_717
+		after - goto *target[ index of lbl_717 in target array]
+*/
 void 
 StatementGoto::change_label(std::vector<string> addr_labels) const{
 	string find_label="";
