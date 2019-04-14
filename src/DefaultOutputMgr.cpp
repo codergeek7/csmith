@@ -45,7 +45,6 @@
 #include "VariableSelector.h"
 #include "Type.h"
 #include "random.h"
-#include "DeltaMonitor.h"
 #include "Error.h"
 
 static std::string filename_prefix = "rnd_output";
@@ -213,10 +212,6 @@ void
 DefaultOutputMgr::Output()
 {
 	std::ostream &out = get_main_out();
-	if (DeltaMonitor::is_running() && (Error::get_error() != SUCCESS)) {
-		out << "Delta reduction error!\n";
-	}
-	//--max-split-files specified
 	if (is_split()) {
 		OutputGlobals();
 		OutputAllHeaders();
@@ -236,7 +231,6 @@ DefaultOutputMgr::Output()
 	if (!CGOptions::nomain())
 		OutputMain(out);
 	OutputTail(out);
-	DeltaMonitor::Output(out);
 }
 std::ostream &
 DefaultOutputMgr::get_main_out()

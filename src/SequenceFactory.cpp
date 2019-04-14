@@ -37,8 +37,7 @@
 #include <iostream>
 #include <string>
 #include "LinearSequence.h"
-#include "SimpleDeltaSequence.h"
-#include "DeltaMonitor.h"
+
 // set data structure = no repetation of duplicate elements
 // seqs_ = [...|...|...|...]  <------- a set data structure
 //	     ^
@@ -61,15 +60,8 @@ Sequence*
 SequenceFactory::make_sequence()
 {
 	Sequence *seq = NULL;
-
-	if (DeltaMonitor::is_running()) {
-		seq = DeltaMonitor::GetSequence();
-		current_sep_char_ = DeltaMonitor::GetSepChar();
-	}
-	else {
-		seq = new LinearSequence(LinearSequence::default_sep_char);
-		current_sep_char_ = LinearSequence::default_sep_char;
-	}
+	seq = new LinearSequence(LinearSequence::default_sep_char);
+	current_sep_char_ = LinearSequence::default_sep_char;
 
 	assert(seq);
 	seqs_.insert(seq);
