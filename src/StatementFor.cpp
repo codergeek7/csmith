@@ -71,7 +71,7 @@ static void
 make_random_loop_control(int &init, int &limit, int &incr,
 						 eBinaryOps &test_op,
 						 eAssignOps &incr_op,
-						 bool iv_signed)
+						 bool iv_signed, bool parallel_for)
 {
 	// We don't have to put error guards here because we are trying
 	// to get pure random numbers, and in this case, we cannot get
@@ -79,7 +79,18 @@ make_random_loop_control(int &init, int &limit, int &incr,
 	init  = pure_rnd_flipcoin(50) ? 0 : (pure_rnd_upto(60)-30);
 	limit = iv_signed ? (pure_rnd_upto(60) - 30) : (pure_rnd_upto(60) + 1);
 
-	eBinaryOps t_ops[] = { eCmpLt, eCmpLe, eCmpGt, eCmpGe, eCmpEq, eCmpNe };
+	int arr_size = (parallel_for) ? 5 : 6 ;
+	eBinaryOps t_ops[arr_size] ;
+	t_ops[0] = eCmpLt;
+	t_ops[1] = eCmpLe;
+	t_ops[2] = eCmpGt;
+	t_ops[3] = eCmpGe;
+	if (parallel_for)//OMP spec 5.0 restricts '==' as operator, hence don't add
+		t_ops[4] = eCmpNe;
+	else{
+		t_ops[4] = eCmpEq;
+		t_ops[5] = eCmpNe;
+	}
 	test_op = t_ops[pure_rnd_upto(sizeof(t_ops)/sizeof(*t_ops))];
 	ERROR_RETURN();
 
@@ -128,8 +139,8 @@ make_random_loop_control(int &init, int &limit, int &incr,
 
 /*
  * Randomly determine the parameters for an array-travering loop
-whether to start from 0 and increment=how much to? , limit to stop=?
-or
+whether to start from 0?, increment=how much to? , limit to stop=?
+			or
 to decrement the loop traversing till 0 from a random value
  */
 static unsigned int
@@ -138,7 +149,7 @@ make_random_array_control(unsigned int bound, int &init, int &limit, int &incr, 
 	// choose either increment or decrement
 	test_op = is_signed ? (rnd_flipcoin(50) ? eCmpLe : eCmpGe) : eCmpLe;
 	if (test_op == eCmpLe) {
-		// increment, start near index 0
+		// increment, start near index 0,not necessary it's always 0
 		init  = pure_rnd_flipcoin(50) ? 0 : pure_rnd_upto(bound/2);
 		limit = bound;
 		incr_op = eAddAssign;
@@ -158,7 +169,7 @@ make_random_array_control(unsigned int bound, int &init, int &limit, int &incr, 
 }
 
 const Variable*
-StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expression*& test, StatementAssign*& incr, unsigned int& bound)
+StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expression*& test, StatementAssign*& incr, unsigned int& bound, bool parallel_for)
 {
 	FactMgr* fm = get_fact_mgr(&cg_context);
 	assert(fm);
@@ -177,7 +188,17 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 		ERROR_GUARD(NULL);
 		if (var->is_volatile()) {
 			invalid_vars.push_back(var);
-		} else {
+		}
+		//check for parallel block if so, avoid struct field vars, as not in spec. 5.0
+		else if (parallel_for == true){
+			if (var->is_field_var()) {//reject a struct/union var in init expression of 'for' loop
+				invalid_vars.push_back(var);
+			}
+			else{
+				break;
+			}
+		}
+		else {
 			break;
 		}
 	} while (true);
@@ -207,11 +228,14 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 			}
 		}
 	}
+	// 'make_random_array_control' doesn't produce '==' hence a win win
 	if (bound != INVALID_BOUND) {
 		bound = make_random_array_control(--bound, init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed());
 	} else {
+		//assigns '==' as a test operand, which needs to be avoided in cannonical loop
 		assert(var->type);
-		make_random_loop_control(init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed());
+		//passing parallel_for, for avoiding '==' inside
+		make_random_loop_control(init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed(), parallel_for);
 	}
 	ERROR_GUARD(NULL);
 
@@ -245,6 +269,12 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 
 	test = new ExpressionFuncall(*invocation);
 
+	//indicates this test expression is in canonical for loop, hence it shouldn't contain a '(' test ')' [brackets] as per OMP 5.0 spec
+	if (parallel_for){
+		FunctionInvocationBinary *invoke_binary = dynamic_cast <FunctionInvocationBinary*>(invocation);
+		invoke_binary->cannonical_for_test_expr = true;
+	}
+
 	// canonize before validation
 	//const ExpressionVariable exp_var(*var);
 	//const FunctionInvocationBinary fb(eAdd, &exp_var, c_incr);
@@ -255,11 +285,15 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 
 	Constant * c_incr = Constant::make_int(incr_n);
 	ERROR_GUARD_AND_DEL3(NULL, init, test, lhs1);
-
+	//If bound is not an 'INVALID_BOUND' it's not producing safe* functions, hence win win
 	if (bound != INVALID_BOUND) {
-		incr = new StatementAssign(cg_context.get_current_block(), *lhs1, *c_incr, incr_op);
+		incr = new StatementAssign(cg_context.get_current_block(), *lhs1, *c_incr, incr_op);//default parameter safe_op_flag set to NULL,hence no safe_* functions in random program
 	} else {
-		incr = StatementAssign::make_possible_compound_assign(cg_context, &(v->get_type()), *lhs1, incr_op, *c_incr);
+		//generates safe_* in increment expressions
+		if (!parallel_for)
+			incr = StatementAssign::make_possible_compound_assign(cg_context, &(v->get_type()), *lhs1, incr_op, *c_incr);
+		else
+			incr = new StatementAssign(cg_context.get_current_block(), *lhs1, *c_incr, incr_op); //generate increment expression with no safe_* functions
 	}
 	return var;
 }
@@ -278,7 +312,11 @@ StatementFor::make_random(CGContext &cg_context)
 	StatementAssign* incr = NULL;
 	Expression* test = NULL;
 	unsigned int bound = 0;
-	const Variable* iv = make_iteration(cg_context, init, test, incr, bound);
+
+	bool parallel_for = true;//decide this using probability
+
+	const Variable* iv = make_iteration(cg_context, init, test, incr, bound, parallel_for);
+
 	// record the effect and facts before loop body
 	Effect pre_effects = cg_context.get_effect_stm();
 	vector<const Fact*> pre_facts = fm->global_facts;

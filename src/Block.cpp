@@ -128,7 +128,7 @@ Block::make_random(CGContext &cg_context, bool looping)
 
 	Function *curr_func = cg_context.get_current_func();
 	assert(curr_func);
-
+	//max_block_size was set in CGOptions during CLI argument passing
 	Block *b = new Block(cg_context.get_current_block(), CGOptions::max_block_size());
 	b->func = curr_func;
 	b->looping = looping;

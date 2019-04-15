@@ -84,6 +84,7 @@ public:
 	virtual bool equals(int num) const ;
 	virtual bool is_0_or_1(void) const;
 
+	bool cannonical_for_test_expr;
 private:
 	eBinaryOps eFunc;//contains one operand from 'eBinaryOps'
 

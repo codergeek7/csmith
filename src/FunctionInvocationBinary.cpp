@@ -95,6 +95,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op, const SafeOpFl
 	  tmp_var1(""),
 	  tmp_var2("")
 {
+	cannonical_for_test_expr = false;
 	// Nothing else to do.  Caller must build useful params.
 }
 
@@ -105,6 +106,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op, const SafeOpFl
 	  tmp_var1(name1),
 	  tmp_var2(name2)
 {
+	cannonical_for_test_expr = false;
 	// Nothing else to do.  Caller must build useful params.
 }
 
@@ -117,6 +119,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(const FunctionInvocationBinar
 	  tmp_var1(fbinary.tmp_var1),
 	  tmp_var2(fbinary.tmp_var2)
 {
+	cannonical_for_test_expr = false;
 	// Nothing to do
 }
 /*
@@ -130,6 +133,8 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op , const Express
 	param_value.clear();
 	add_operand(exp1);
 	add_operand(exp2);
+
+	cannonical_for_test_expr = false;
 }
 
 /*
@@ -378,8 +383,8 @@ FunctionInvocationBinary::get_binop_string(eBinaryOps bop)
                 operand: +,-,*,%,/,<<,>>
                 and if we are avoiding the overflows use safe functions
 		output:
-			safe_add_int8_t_s_s(expr1, expr2)
-			or similar derivatives 
+			( safe_add_int8_t_s_s(expr1, expr2) )
+			or similar derivatives
 	case2:
 		operands: all remaining
 		output:
@@ -389,7 +394,8 @@ void
 FunctionInvocationBinary::Output(std::ostream &out) const
 {
 	bool need_cast = false;
-	out << "(";
+	if (!cannonical_for_test_expr)
+		out << "(";
 	// special case for mutated array subscripts, see ArrayVariable::rnd_mutate
 	// the rational is we don't need overflow check for this addition because
 	// the induction variable is small --- less than the size of array, which
@@ -462,7 +468,8 @@ FunctionInvocationBinary::Output(std::ostream &out) const
 			break;
 		}
 	}
-	out << ")";
+	if (!cannonical_for_test_expr)
+		out << ")";
 }
 
 /*

@@ -679,6 +679,9 @@ CGContext::get_external_no_reads_writes(VariableSet& no_reads, VariableSet& no_w
 	}
 }
 
+/*
+	check the 'must_read_vars' and 'must_write_vars'(class RWDirective) if it contains any array variable,if found add in 'avs'
+*/
 void
 RWDirective::find_must_use_arrays(vector<const Variable*>& avs) const
 {

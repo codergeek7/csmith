@@ -89,6 +89,7 @@ DistributionTable StatementAssign::assignOpsTable_;
         |ePostIncr	|5      |   |
         |_______________|_______|<--+
 
+we decide the operators which would be used in the program
 */
 void
 StatementAssign::InitProbabilityTable()
@@ -334,8 +335,8 @@ StatementAssign::make_possible_compound_assign(CGContext &cg_context,
 	return sa;
 }
 /*
-converting 
-     compoundops   binaryOperand
+converting
+     compoundops to  binaryOperand
 	x+= ------> +
 	--x ------> -
 and so on..
