@@ -123,7 +123,7 @@ public:
 //data variables
 	bool leaf_block ;//is it good if not initialized in constructor?
 	bool IsStructured ;
-
+	std::vector<const Variable*> store_lhs_var;
 //member functions
 	void set_leaf_or_nonleaf_block(Block *b);
 	bool is_leaf_block();

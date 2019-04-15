@@ -413,6 +413,10 @@ Block::Output(std::ostream &out, FactMgr* fm, int indent) const
 		output_tab(out, indent);
 		output_comment_line (out , "un structured");
 	}
+	for (size_t i =0 ; i < store_lhs_var.size(); i++){
+		output_comment_line(out, store_lhs_var[i]->get_actual_name());
+	}
+	outputln(out);
 	output_comment_line(out, ss.str());
 
 	if (CGOptions::depth_protect()) {
