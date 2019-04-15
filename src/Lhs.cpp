@@ -49,7 +49,6 @@
 #include "DepthSpec.h"
 #include "ArrayVariable.h"
 #include "random.h"
-
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////

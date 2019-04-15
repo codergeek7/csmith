@@ -243,7 +243,6 @@ StatementAssign::make_random(CGContext &cg_context, const Type* type, const CVQu
 		delete lhs;
 		return NULL;
 	}
-
 	cg_context.merge_param_context(lhs_cg_context, true);
 	ERROR_GUARD_AND_DEL2(NULL, e, lhs);
 	StatementAssign *stmt_assign = make_possible_compound_assign(cg_context, type, *lhs, op, *e);

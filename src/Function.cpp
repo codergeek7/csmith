@@ -638,6 +638,7 @@ Function::Output(std::ostream &out)
 		return;
 	OutputMgr::set_curr_func(name);
 	output_comment_line(out, "------------------------------------------");
+	//concise = minimal comments,don't print write and reads when concise
 	if (!CGOptions::concise()) {
 		feffect.Output(out);
 	}

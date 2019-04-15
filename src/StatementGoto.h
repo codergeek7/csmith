@@ -69,6 +69,7 @@ public:
 
 	const Expression &test;
 	const Statement* dest;
+	std::string label;
 	std::vector<const Variable*> init_skipped_vars;
 	static std::map<const Statement*, std::string> stm_labels;
 };

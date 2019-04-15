@@ -86,7 +86,7 @@ Block* find_block_by_id(int blk_id)
 }
 
 /*
- *
+ *returns random number between 0-sizeof (block)
  */
 static unsigned int
 BlockProbability(Block &block)
@@ -97,7 +97,7 @@ BlockProbability(Block &block)
 	filter.disable(fDefault);
 	return rnd_upto(block.block_size(), &filter);
 }
-
+//called when using builtin functions
 Block *
 Block::make_dummy_block(CGContext &cg_context)
 {
@@ -155,6 +155,7 @@ Block::make_random(CGContext &cg_context, bool looping)
 	unsigned int i;
 	if (b->stm_id == 1)
 		BREAK_NOP;			// for debugging
+
 	for (i = 0; i <= max; ++i) {
 		Statement *s = Statement::make_random(cg_context);
 		// In the exhaustive mode, Statement::make_random could return NULL;
@@ -178,6 +179,8 @@ Block::make_random(CGContext &cg_context, bool looping)
 	}
 
 	// perform DFA analysis after creation
+	//for ex. 4 statements were created inside a block, but
+	//after DFA analysis they were removed
 	b->post_creation_analysis(cg_context, pre_effect);
 
 	if (Error::get_error() != SUCCESS) {
@@ -192,13 +195,97 @@ Block::make_random(CGContext &cg_context, bool looping)
 		delete b;
 		return NULL;
 	}
+	//function checks for leaf block, if yes then sets 'leaf_block' = true
+	b->set_leaf_or_nonleaf_block(b);
+	//check for structuredness
+	//function blocks are not structured, due to return
+	//need a more detailed conditions for above case
+	//arrayOp is in itself a structured block statement
+	if (curr_func->blocks[0] == b){//optimizes a bit
+		b->IsStructured = false;
+	}
+	else{
+		if (b->is_leaf_block ()){
+			if (b->check_structured_block_conditions() ){ // if true
+				//logic of struc block
+				b->IsStructured = true;
+			}
+			else{//not a structured block
+				b->IsStructured = false;
+			}
+		}
+		else{//a parent block
+			 if (b->check_structured_block_conditions() ){ // if true
+                                //logic of struc block
+				//wait the internal blocks remain to check
+				//1.get internal blocks
+				vector<const Block*> internal_blks;
+				for (size_t i =0 ; i< b->stms.size() ; i++)
+					b->stms[i]->get_blocks(internal_blks);
 
+				bool internal_block_fails=false;
+				for (size_t k = 0; k < internal_blks.size(); k++){
+					if(!internal_blks[k]->IsStructured){
+						internal_block_fails = true;
+						break;
+					}
+				}
+				(internal_block_fails == true) ? (b->IsStructured = false ) : (b->IsStructured = true);
+                        }
+                        else{//not a structured block
+                                b->IsStructured = false;
+                        }
+
+		}
+	}
 	// ISSUE: in the exhaustive mode, do we need a return statement here
 	// if the last statement is not?
 	Error::set_error(SUCCESS);
 	return b;
 }
+//need to call after DFA analysis,else some statements removed
+//we check for for and if statements ( as have blocks to these statements )
+//if above statements not present it's a leaf node else a parent one
 
+void Block::set_leaf_or_nonleaf_block(Block *b){
+	b->leaf_block = true;//assume block is leaf,rule out later
+	for (int i =0 ; i<b->stms.size() ; i++){
+		if ( (b->stms[i]->eType == eFor) || (b->stms[i]->eType == eIfElse) ){ //if a for/ if statement.do we need to check any more?
+			b->leaf_block = false;
+		}
+	}
+}
+//checks whether block is a leaf
+bool Block::is_leaf_block(){
+	if (this->leaf_block)
+		return true;
+	else
+		return false;
+}
+bool Block::check_structured_block_conditions(){
+	//write here
+	size_t i ;
+	for (i = 0 ; i < this->stms.size(); i++){
+		if (this->stms[i]->eType == eReturn)
+			return false;
+		if (this->stms[i]->eType == eBreak)
+			return false;
+		if (this->stms[i]->eType == eGoto)
+			return false;
+		//continue is alowed,right?
+	//1.if no return
+	//2.no break
+	//3. no statement goto
+	//if no label present-hard
+	}
+	return true;//still need more detailed analysis
+}
+bool Block::is_structured_block(){
+	if (this->IsStructured)
+		return true;
+	else
+		return false;
+}
 /*
  *
  */
@@ -245,7 +332,7 @@ Block::~Block(void)
 	local_vars.clear();
 	macro_tmp_vars.clear();
 }
-
+//new temp variable created and stored in macro_tmp_vars(mentioned below)
 
 std::string
 Block::create_new_tmp_var(enum eSimpleType type) const
@@ -316,6 +403,16 @@ Block::Output(std::ostream &out, FactMgr* fm, int indent) const
 	out << "{ ";
 	std::ostringstream ss;
 	ss << "block id: " << stm_id;
+	if (IsStructured){
+		outputln(out);
+		output_tab(out, indent);
+		output_comment_line (out , "structured");
+	}
+	else{
+		outputln(out);
+		output_tab(out, indent);
+		output_comment_line (out , "un structured");
+	}
 	output_comment_line(out, ss.str());
 
 	if (CGOptions::depth_protect()) {

@@ -120,6 +120,15 @@ public:
 
 	std::vector<const Statement*> break_stms;
 
+//data variables
+	bool leaf_block ;//is it good if not initialized in constructor?
+	bool IsStructured ;
+
+//member functions
+	void set_leaf_or_nonleaf_block(Block *b);
+	bool is_leaf_block();
+	bool check_structured_block_conditions();
+	bool is_structured_block();
 private:
 
 	bool depth_protect;
