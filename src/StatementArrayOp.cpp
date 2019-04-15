@@ -82,7 +82,11 @@ StatementArrayOp::make_random(CGContext &cg_context)
 	bool ary_init = rnd_flipcoin(5);
 	ERROR_GUARD(NULL);
 	if (ary_init) {
-		return make_random_array_init(cg_context);
+		//set when you want statementArrayop to be canonical loops
+		bool parallel_for = true; //set based on commandline
+		StatementArrayOp *sa = make_random_array_init(cg_context, parallel_for);
+		if (parallel_for)
+			sa->cannonical_for = true;//indicates the loop is in cannonical form
 	}
 	StatementFor* sf = StatementFor::make_random_array_loop(cg_context);
 	return sf;
@@ -97,7 +101,7 @@ StatementArrayOp::make_random(CGContext &cg_context)
 4. now create StatementArrayOp
 */
 StatementArrayOp *
-StatementArrayOp::make_random_array_init(CGContext &cg_context)
+StatementArrayOp::make_random_array_init(CGContext &cg_context, bool parallel_for)
 {
 	// select the array to initialize
 	//static int g = 0;
@@ -135,6 +139,15 @@ StatementArrayOp::make_random_array_init(CGContext &cg_context)
 				|| (!CGOptions::signed_char_index() && cv->type->is_signed_char())) {
 				invalid_vars.push_back(cv);
 				continue;
+			}
+			else if (parallel_for){
+				if (cv->is_field_var()) {//reject struct field vars as per spec 5.0
+        	        		invalid_vars.push_back(cv);
+		                }
+         	                else{
+                 	        	break;
+                        	}
+
 			}
 			else {
 				break;
@@ -185,6 +198,7 @@ StatementArrayOp::StatementArrayOp(Block* b, const ArrayVariable* av,
 	  init_value(0)
 {
 	// Nothing else to do.
+	cannonical_for = false;
 }
 
 /*
@@ -204,6 +218,7 @@ StatementArrayOp::StatementArrayOp(Block* b, const ArrayVariable* av,
 	  init_value(e)
 {
 	// Nothing else to do.
+	cannonical_for = false;
 }
 
 /*

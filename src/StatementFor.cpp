@@ -313,7 +313,7 @@ StatementFor::make_random(CGContext &cg_context)
 	Expression* test = NULL;
 	unsigned int bound = 0;
 
-	bool parallel_for = true;//decide this using probability
+	bool parallel_for = false;//decide this using probability
 
 	const Variable* iv = make_iteration(cg_context, init, test, incr, bound, parallel_for);
 

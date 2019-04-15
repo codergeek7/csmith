@@ -51,7 +51,7 @@ class StatementArrayOp : public Statement
 public:
 	// Factory method.
 	static Statement *make_random(CGContext &cg_context);
-	static StatementArrayOp *make_random_array_init(CGContext &cg_context);
+	static StatementArrayOp *make_random_array_init(CGContext &cg_context, bool parallel_for);
 	StatementArrayOp(Block* b, const ArrayVariable* av,
 				   const std::vector<const Variable*>& cvs,
 				   const std::vector<int>& inits,
@@ -76,6 +76,8 @@ public:
 	const std::vector<int> incrs;
 	const Block *body;
 	const Expression *init_value;//contains the rhs value for initializaation of arrayvariable
+
+	bool cannonical_for ;
 private:
 	static void make_random_iter_ctrl(int size, int &init, int &incr);
 };
