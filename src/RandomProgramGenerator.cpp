@@ -208,6 +208,9 @@ static void print_help()
 	cout << "  --lang-cpp : generate C++ code (C by default)." << endl << endl;
 	cout << "  --cpp11 : generate C++11 code (C++03 by default). Works if lang-cpp is enabled." << endl << endl;
 
+	//OpenMP extensions
+	cout << "  --canonical-loops | --no-canonical-loops: enable | disable to generate canonical for/while loops as per OMP specification 5.0 (disabled by default)." << endl << endl;
+
 }
 
 static void print_advanced_help()
@@ -1399,6 +1402,15 @@ main(int argc, char **argv)
       CGOptions::max_array_length_per_dimension(5);
       continue;
     }
+		//parsing OpenMP commandlines
+		if (strcmp (argv[i], "--canonical-loops" ) == 0){
+			CGOptions::canonical_loops(true);
+			continue;
+		}
+		if (strcmp(argv[i], "--no-canonical-loops" ) == 0){
+			CGOptions::canonical_loops(false);
+			continue;
+		}
 		// OMIT help
 
 		// OMIT compute-hash

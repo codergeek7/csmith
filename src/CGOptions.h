@@ -460,6 +460,8 @@ public:
   static bool fast_execution(void);
   static bool fast_execution(bool p);
 
+	static bool canonical_loops ();
+	static bool canonical_loops (bool p);
 private:
 	static bool enabled_builtin_kind(const string &kind);
 
@@ -603,6 +605,9 @@ private:
 	// flag to indicate language
 	static bool lang_cpp_;
 	static bool cpp11_;
+
+	//OpenMP extensions indicating flags
+	static bool canonical_loops_;
 private:
 	CGOptions(void);
 	CGOptions(CGOptions &cgo);

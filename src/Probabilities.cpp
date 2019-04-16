@@ -963,16 +963,43 @@ Probabilities::set_default_statement_prob()
 	SET_SINGLE_NAME("statement_block_prob", Block, 0);
 	SET_SINGLE_NAME("statement_ifelse_prob", IfElse, 15);
 	SET_SINGLE_NAME("statement_for_prob", For, 30);
-	SET_SINGLE_NAME("statement_return_prob", Return, 35);
-	SET_SINGLE_NAME("statement_continue_prob", Continue, 40);
-	SET_SINGLE_NAME("statement_break_prob", Break, 45);
+	if (CGOptions::canonical_loops()){
+		SET_SINGLE_NAME("statement_return_prob", Return, 0);	//disable returns for structured block generation
+	}
+	else{
+		SET_SINGLE_NAME("statement_return_prob", Return, 35);
+	}
+	if (CGOptions::canonical_loops()){
+		SET_SINGLE_NAME("statement_continue_prob", Continue, 0);
+	}
+	else{
+		SET_SINGLE_NAME("statement_continue_prob", Continue, 40);
+	}
+	if (CGOptions::canonical_loops()){
+		SET_SINGLE_NAME("statement_break_prob", Break, 0);
+	}
+	else{
+		SET_SINGLE_NAME("statement_break_prob", Break, 45);
+	}
+	//./csmith --jumps --arrays --canonical-loops, will overwrite the jumps and disable jumps
 	if (CGOptions::jumps() && CGOptions::arrays()) {
-		SET_SINGLE_NAME("statement_goto_prob", Goto, 50);
+		if (CGOptions::canonical_loops()){
+			SET_SINGLE_NAME("statement_goto_prob", Goto, 0);
+		}
+		else{
+			SET_SINGLE_NAME("statement_goto_prob", Goto, 50);
+		}
 		SET_SINGLE_NAME("statement_arrayop_prob", ArrayOp, 60);
 	}
+	//again ./csmith --jumps --canonical-loops will remove effect of jumps
 	else if (CGOptions::jumps() && !CGOptions::arrays()) {
 		SET_SINGLE_NAME("statement_arrayop_prob", ArrayOp, 0);
-		SET_SINGLE_NAME("statement_goto_prob", Goto, 50);
+		if (CGOptions::canonical_loops()){
+			SET_SINGLE_NAME("statement_goto_prob", Goto, 0);
+		}
+		else{
+			SET_SINGLE_NAME("statement_goto_prob", Goto, 50);
+		}
 	}
 	else if (!CGOptions::jumps() && CGOptions::arrays()) {
 		SET_SINGLE_NAME("statement_goto_prob", Goto, 0);

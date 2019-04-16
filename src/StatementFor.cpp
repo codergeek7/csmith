@@ -312,8 +312,11 @@ StatementFor::make_random(CGContext &cg_context)
 	StatementAssign* incr = NULL;
 	Expression* test = NULL;
 	unsigned int bound = 0;
-
-	bool parallel_for = false;//decide this using probability
+	bool parallel_for = false;
+	if (CGOptions::canonical_loops())
+		parallel_for = true;//decide this using probability
+	else
+		parallel_for = false;
 
 	const Variable* iv = make_iteration(cg_context, init, test, incr, bound, parallel_for);
 

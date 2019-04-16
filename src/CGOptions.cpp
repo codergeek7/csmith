@@ -196,6 +196,9 @@ DEFINE_GETTER_SETTER_BOOL(lang_cpp);
 DEFINE_GETTER_SETTER_BOOL(cpp11);
 DEFINE_GETTER_SETTER_BOOL(fast_execution);
 
+//OpenMP extensions
+DEFINE_GETTER_SETTER_BOOL(canonical_loops);
+
 void
 CGOptions::set_default_builtin_kinds()
 {
@@ -307,6 +310,9 @@ CGOptions::set_default_settings(void)
   fast_execution(false);
 
 	set_default_builtin_kinds();
+
+	//OpenMP extensions defaults
+	canonical_loops(false);
 }
 
 // Add options necessary for cpp 

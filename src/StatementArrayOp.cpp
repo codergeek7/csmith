@@ -83,7 +83,12 @@ StatementArrayOp::make_random(CGContext &cg_context)
 	ERROR_GUARD(NULL);
 	if (ary_init) {
 		//set when you want statementArrayop to be canonical loops
-		bool parallel_for = true; //set based on commandline
+		bool parallel_for=false;
+		if (CGOptions::canonical_loops())
+			parallel_for = true; //set based on commandline
+		else
+			parallel_for = false;
+
 		StatementArrayOp *sa = make_random_array_init(cg_context, parallel_for);
 		if (parallel_for)
 			sa->cannonical_for = true;//indicates the loop is in cannonical form
