@@ -71,7 +71,7 @@ static void
 make_random_loop_control(int &init, int &limit, int &incr,
 						 eBinaryOps &test_op,
 						 eAssignOps &incr_op,
-						 bool iv_signed, bool parallel_for)
+						 bool iv_signed, bool canonical_loop)
 {
 	// We don't have to put error guards here because we are trying
 	// to get pure random numbers, and in this case, we cannot get
@@ -79,15 +79,19 @@ make_random_loop_control(int &init, int &limit, int &incr,
 	init  = pure_rnd_flipcoin(50) ? 0 : (pure_rnd_upto(60)-30);
 	limit = iv_signed ? (pure_rnd_upto(60) - 30) : (pure_rnd_upto(60) + 1);
 
-	int arr_size = (parallel_for) ? 5 : 6 ;
+	int arr_size = (canonical_loop) ? 4 : 6 ;
 	eBinaryOps t_ops[arr_size] ;
 	t_ops[0] = eCmpLt;
 	t_ops[1] = eCmpLe;
 	t_ops[2] = eCmpGt;
 	t_ops[3] = eCmpGe;
-	if (parallel_for)//OMP spec 5.0 restricts '==' as operator, hence don't add
-		t_ops[4] = eCmpNe;
-	else{
+
+	//OMP spec 5.0 restricts '==' as operator, hence don't add
+	//OMP spec 5.0 supports '!=' as operator currently gcc 9.0 compiles it.
+	//https://developers.redhat.com/blog/2019/03/19/whats-new-in-openmp-5-0/
+	//refer: https://www.mail-archive.com/gcc-bugs@gcc.gnu.org/msg291806.html
+
+	if (!canonical_loop){
 		t_ops[4] = eCmpEq;
 		t_ops[5] = eCmpNe;
 	}
@@ -169,7 +173,7 @@ make_random_array_control(unsigned int bound, int &init, int &limit, int &incr, 
 }
 
 const Variable*
-StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expression*& test, StatementAssign*& incr, unsigned int& bound, bool parallel_for)
+StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expression*& test, StatementAssign*& incr, unsigned int& bound, bool canonical_loop)
 {
 	FactMgr* fm = get_fact_mgr(&cg_context);
 	assert(fm);
@@ -190,8 +194,11 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 			invalid_vars.push_back(var);
 		}
 		//check for parallel block if so, avoid struct field vars, as not in spec. 5.0
-		else if (parallel_for == true){
-			if (var->is_field_var()) {//reject a struct/union var in init expression of 'for' loop
+		else if (canonical_loop == true){
+			if (var->isArray){
+				invalid_vars.push_back (var);
+			}
+			else if (var->is_field_var()) {//reject a struct/union var in init expression of 'for' loop
 				invalid_vars.push_back(var);
 			}
 			else{
@@ -232,10 +239,10 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 	if (bound != INVALID_BOUND) {
 		bound = make_random_array_control(--bound, init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed());
 	} else {
-		//assigns '==' as a test operand, which needs to be avoided in cannonical loop
+		//assigns '==' as a test operand, which needs to be avoided in canonical loop
 		assert(var->type);
-		//passing parallel_for, for avoiding '==' inside
-		make_random_loop_control(init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed(), parallel_for);
+		//passing canonical_loop, for avoiding '==' inside
+		make_random_loop_control(init_n, limit_n, incr_n, test_op, incr_op, var->type->is_signed(), canonical_loop);
 	}
 	ERROR_GUARD(NULL);
 
@@ -270,9 +277,9 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 	test = new ExpressionFuncall(*invocation);
 
 	//indicates this test expression is in canonical for loop, hence it shouldn't contain a '(' test ')' [brackets] as per OMP 5.0 spec
-	if (parallel_for){
+	if (canonical_loop){
 		FunctionInvocationBinary *invoke_binary = dynamic_cast <FunctionInvocationBinary*>(invocation);
-		invoke_binary->cannonical_for_test_expr = true;
+		invoke_binary->canonical_for_test_expr = true;
 	}
 
 	// canonize before validation
@@ -290,7 +297,7 @@ StatementFor::make_iteration(CGContext& cg_context, StatementAssign*& init, Expr
 		incr = new StatementAssign(cg_context.get_current_block(), *lhs1, *c_incr, incr_op);//default parameter safe_op_flag set to NULL,hence no safe_* functions in random program
 	} else {
 		//generates safe_* in increment expressions
-		if (!parallel_for)
+		if (!canonical_loop)
 			incr = StatementAssign::make_possible_compound_assign(cg_context, &(v->get_type()), *lhs1, incr_op, *c_incr);
 		else
 			incr = new StatementAssign(cg_context.get_current_block(), *lhs1, *c_incr, incr_op); //generate increment expression with no safe_* functions
@@ -312,13 +319,13 @@ StatementFor::make_random(CGContext &cg_context)
 	StatementAssign* incr = NULL;
 	Expression* test = NULL;
 	unsigned int bound = 0;
-	bool parallel_for = false;
+	bool canonical_loop = false;
 	if (CGOptions::canonical_loops())
-		parallel_for = true;//decide this using probability
+		canonical_loop = true;//decide this using probability
 	else
-		parallel_for = false;
+		canonical_loop = false;
 
-	const Variable* iv = make_iteration(cg_context, init, test, incr, bound, parallel_for);
+	const Variable* iv = make_iteration(cg_context, init, test, incr, bound, canonical_loop);
 
 	// record the effect and facts before loop body
 	Effect pre_effects = cg_context.get_effect_stm();

@@ -83,15 +83,15 @@ StatementArrayOp::make_random(CGContext &cg_context)
 	ERROR_GUARD(NULL);
 	if (ary_init) {
 		//set when you want statementArrayop to be canonical loops
-		bool parallel_for=false;
+		bool canonical_loop=false;
 		if (CGOptions::canonical_loops())
-			parallel_for = true; //set based on commandline
+			canonical_loop = true; //set based on commandline
 		else
-			parallel_for = false;
+			canonical_loop = false;
 
-		StatementArrayOp *sa = make_random_array_init(cg_context, parallel_for);
-		if (parallel_for)
-			sa->cannonical_for = true;//indicates the loop is in cannonical form
+		StatementArrayOp *sa = make_random_array_init(cg_context, canonical_loop);
+		if (canonical_loop)
+			sa->canonical_for = true;//indicates the loop is in canonical form
 	}
 	StatementFor* sf = StatementFor::make_random_array_loop(cg_context);
 	return sf;
@@ -106,7 +106,7 @@ StatementArrayOp::make_random(CGContext &cg_context)
 4. now create StatementArrayOp
 */
 StatementArrayOp *
-StatementArrayOp::make_random_array_init(CGContext &cg_context, bool parallel_for)
+StatementArrayOp::make_random_array_init(CGContext &cg_context, bool canonical_loop)
 {
 	// select the array to initialize
 	//static int g = 0;
@@ -145,8 +145,10 @@ StatementArrayOp::make_random_array_init(CGContext &cg_context, bool parallel_fo
 				invalid_vars.push_back(cv);
 				continue;
 			}
-			else if (parallel_for){
-				if (cv->is_field_var()) {//reject struct field vars as per spec 5.0
+			else if (canonical_loop){
+				if (cv->isArray)
+					invalid_vars.push_back(cv);
+				else if (cv->is_field_var()) {//reject struct field vars as per spec 5.0
         	        		invalid_vars.push_back(cv);
 		                }
          	                else{
@@ -203,7 +205,7 @@ StatementArrayOp::StatementArrayOp(Block* b, const ArrayVariable* av,
 	  init_value(0)
 {
 	// Nothing else to do.
-	cannonical_for = false;
+	canonical_for = false;
 }
 
 /*
@@ -223,7 +225,7 @@ StatementArrayOp::StatementArrayOp(Block* b, const ArrayVariable* av,
 	  init_value(e)
 {
 	// Nothing else to do.
-	cannonical_for = false;
+	canonical_for = false;
 }
 
 /*

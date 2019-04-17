@@ -95,7 +95,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op, const SafeOpFl
 	  tmp_var1(""),
 	  tmp_var2("")
 {
-	cannonical_for_test_expr = false;
+	canonical_for_test_expr = false;
 	// Nothing else to do.  Caller must build useful params.
 }
 
@@ -106,7 +106,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op, const SafeOpFl
 	  tmp_var1(name1),
 	  tmp_var2(name2)
 {
-	cannonical_for_test_expr = false;
+	canonical_for_test_expr = false;
 	// Nothing else to do.  Caller must build useful params.
 }
 
@@ -119,7 +119,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(const FunctionInvocationBinar
 	  tmp_var1(fbinary.tmp_var1),
 	  tmp_var2(fbinary.tmp_var2)
 {
-	cannonical_for_test_expr = false;
+	canonical_for_test_expr = false;
 	// Nothing to do
 }
 /*
@@ -134,7 +134,7 @@ FunctionInvocationBinary::FunctionInvocationBinary(eBinaryOps op , const Express
 	add_operand(exp1);
 	add_operand(exp2);
 
-	cannonical_for_test_expr = false;
+	canonical_for_test_expr = false;
 }
 
 /*
@@ -394,7 +394,7 @@ void
 FunctionInvocationBinary::Output(std::ostream &out) const
 {
 	bool need_cast = false;
-	if (!cannonical_for_test_expr)
+	if (!canonical_for_test_expr)
 		out << "(";
 	// special case for mutated array subscripts, see ArrayVariable::rnd_mutate
 	// the rational is we don't need overflow check for this addition because
@@ -468,7 +468,7 @@ FunctionInvocationBinary::Output(std::ostream &out) const
 			break;
 		}
 	}
-	if (!cannonical_for_test_expr)
+	if (!canonical_for_test_expr)
 		out << ")";
 }
 
