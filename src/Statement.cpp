@@ -353,6 +353,9 @@ Statement::make_random(CGContext &cg_context,
 	s->func = cg_context.get_current_func();
 	s->parent = cg_context.get_current_block();
 	s->post_creation_analysis(pre_facts, pre_effect, cg_context);
+	//first we map the current statement's effects and add these effects into existing stmt_effect
+	//initially stmt_effect doesn't hold any previous effect in it
+	s->stmt_effect.add_external_effect (fm->map_stm_effect[s]);
 	return s;
 }
 

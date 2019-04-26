@@ -384,6 +384,8 @@ OutputStatementList(const vector<Statement*> &stms, std::ostream &out, FactMgr* 
 	for (i=0; i<stms.size(); i++) {
 		const Statement* stm = stms[i];
 		stm->pre_output(out, fm, indent);
+		//prints the reads,writes in a statement
+		stm->stmt_effect.Output (out, indent);
 		stm->Output(out, fm, indent);
 		stm->post_output(out, fm, indent);
 	}

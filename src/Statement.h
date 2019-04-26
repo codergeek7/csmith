@@ -43,6 +43,7 @@
 #include <ostream>
 #include <string>
 #include "Probabilities.h"
+#include "Effect.h"
 using namespace std;
 
 #ifndef STATEMENT_H
@@ -185,6 +186,8 @@ public:
 	static const Statement* failed_stm;
 
 	static ProbabilityTable<unsigned int, ProbName> *stmtTable_;
+	//stores Effects related to statement
+	Effect stmt_effect;
 protected:
 	Statement(eStatementType st, Block* parent);
 
