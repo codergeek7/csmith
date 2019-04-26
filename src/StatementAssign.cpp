@@ -248,13 +248,6 @@ StatementAssign::make_random(CGContext &cg_context, const Type* type, const CVQu
 	ERROR_GUARD_AND_DEL2(NULL, e, lhs);
 	StatementAssign *stmt_assign = make_possible_compound_assign(cg_context, type, *lhs, op, *e);
 	ERROR_GUARD_AND_DEL2(NULL, e, lhs);
-
-	//retrieve the current block for given statementAssign
-        Block *bl  = cg_context.get_current_block();
-        //retrieve the variable and insert into 'store_lhs_var'
-        const Variable *varl = lhs->get_var();
-        bl->store_lhs_var.push_back(varl);//push in block
-
 	return stmt_assign;
 }
 
