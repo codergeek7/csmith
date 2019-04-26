@@ -39,7 +39,7 @@
 #include "Block.h"
 #include "Type.h"
 #include "util.h"
-
+#include "OutputMgr.h"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -568,14 +568,21 @@ Effect::clear(void)
  *
  */
 void
-Effect::Output(std::ostream &out) const
+Effect::Output(std::ostream &out, int indent) const
 {
 	vector<Variable *>::size_type len;
 	vector<Variable *>::size_type i;
 
 	std::ostringstream ss;
+	//save indent
+	int save_indent = indent;
 
 	ss << std::endl;
+	//can't use ss << output_tab(out, indent)
+	//as c++ restricts void as return type, hence hard coted the internal logic
+	while (indent--){
+		ss << TAB;
+	}
 	ss << " * reads :";
 	len = read_vars.size();
 	for (i = 0; i < len; ++i) {
@@ -585,6 +592,10 @@ Effect::Output(std::ostream &out) const
 	}
 	ss << endl;
 
+	indent = save_indent;	//restore previous indent
+	while (indent--){
+		ss << TAB;
+	}
 	ss << " * writes:";
 	len = write_vars.size();
 	for (i = 0; i < len; ++i) {
@@ -593,6 +604,13 @@ Effect::Output(std::ostream &out) const
 	}
 	ss << endl;
 
+	indent = save_indent;	//restore previous indent
+	while (indent--){
+		ss << TAB;
+	}
+
+	indent = save_indent;
+	output_tab (out, indent);
 	output_comment_line(out, ss.str());
 }
 

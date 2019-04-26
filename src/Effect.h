@@ -87,8 +87,8 @@ public:
 	typedef enum {
 		READ, WRITE
 	} Access;
-
-	void Output(std::ostream &out) const;
+	//passing default parameter as 0, only invoked while printing the effects of a statement
+	void Output(std::ostream &out, int indent=0 ) const;
 	bool has_global_effect(void) const;
 	void update_purity(void);
 
