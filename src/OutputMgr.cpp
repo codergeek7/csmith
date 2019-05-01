@@ -150,6 +150,7 @@ OutputMgr::OutputMain(std::ostream &out)
 
 	// output initializers for global array variables
 	OutputArrayInitializers(*VariableSelector::GetGlobalVariables(), out, 1);
+	if (CGOptions::parallel_programs())
 	out << "    omp_set_num_threads(NUM_THREADS);\n";
 	if (CGOptions::blind_check_global()) {
 		ExtensionMgr::OutputFirstFunInvocation(out, invoke);

@@ -1411,7 +1411,6 @@ main(int argc, char **argv)
 		}
 		if (strcmp(argv[i], "--no-canonical-loops" ) == 0){
 			CGOptions::canonical_loops(false);
-			CGOptions::parallel_programs(false);
 			continue;
 		}
 		if (strcmp (argv[i], "--parallel-for" ) == 0){
@@ -1421,7 +1420,6 @@ main(int argc, char **argv)
 		}
 		if (strcmp(argv[i], "--no-parallel-for" ) == 0){
 			CGOptions::parallel_for(false);
-			CGOptions::parallel_programs(false);
 			continue;
 		}
 		// OMIT help
