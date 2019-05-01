@@ -1044,7 +1044,12 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 		//here based on dimen you print, them
 		// how is dimen choosen?
 		//it searches the local variables, chooses the arrayvariable with highest dimensions
+
+		//prints int i,j,k; part before loop
 		OutputArrayCtrlVars(ctrl_vars, out, dimen, indent);
+		//due to printing of above control vars before, we get situation where only
+		//int i,k,j printed but no loops below.
+
 		for (i=0; i<vars.size(); i++) {
 			if (vars[i]->isArray) {
 				ArrayVariable* av = (ArrayVariable*)(vars[i]);
@@ -1098,6 +1103,7 @@ OutputVariableList(const vector<Variable*> &vars, std::ostream &out, int indent)
 		for(){
 		}
 	*/
+	//vars has the arrays which u want to intialize
 	if (!vars.empty() && !vars[0]->is_global()) {
 		OutputArrayInitializers(vars, out, indent);
 	}

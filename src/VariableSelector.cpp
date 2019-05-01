@@ -598,15 +598,18 @@ VariableSelector::create_and_initialize(Effect::Access access, const CGContext &
 {
 	const Expression* init = NULL;
 	Variable* var = NULL;
-
+	//want an array variable?
 	if (rnd_flipcoin(NewArrayVariableProb)) {
+		//that's great to choose arrays, now let's decide initial values
+
+		//the init values are only constants
 		if (CGOptions::strict_const_arrays()) {
 			init = Constant::make_random(t);
 		} else {
 			init = make_init_value(access, cg_context, t, qfer, blk);
 		}
 		var = create_array_and_itemize(blk, name, cg_context, t, init, qfer);
-	}
+	}//want simple variable?
 	else {
 		init = make_init_value(access, cg_context, t, qfer, blk);
 		var = new_variable(name, t, init, qfer);

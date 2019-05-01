@@ -474,15 +474,20 @@ ArrayVariable::is_visible_local(const Block* blk) const
     return false;
 }
 /*
-DOUBT
-	here the comments are correct, but the code lies
-but reverse should have been true
+if 	array variable is not initialized, not struct/union,not const, and not global
+then
+	can use loops to intialize the array
 */
 bool
 ArrayVariable::no_loop_initializer(void) const
 {
 	// don't use loop initializer if we are doing test case reduction
-	// can not use loop initializer if either array member are structs, or they are constants, or it has > 1 initial values
+	//for using loops to initialize, array variable can't be,
+	//1.struct/union
+	//2.a const
+	//3.global array
+	//VIMP
+	//4.must not be initialzed (i.e init_values should be 0 )
 	return type->eType==eStruct || type->eType==eUnion || is_const() || is_global() || (init_values.size() > 0);
 }
 
