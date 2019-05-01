@@ -632,6 +632,9 @@ Probabilities::set_single_name_maps()
 	// for choosing a builtin function
 	set_single_name("builtin_function_prob", pBuiltinFunctionProb);
 
+	//OpenMP extensions
+	set_single_name("parallel_for_on_arrayvariables_prob", pArrayVariableParallelForProb);
+
         //////////////////////////////////////////////////////////////////
 	// group for statement
 	set_single_name("statement_prob", pStatementProb);
@@ -766,6 +769,12 @@ Probabilities::initialize_single_probs()
 	m[pAccessOnceVariableProb] = 20;
 	m[pInlineFunctionProb] = CGOptions::inline_function_prob();
 	m[pBuiltinFunctionProb] = CGOptions::builtin_function_prob();
+
+	//OpenMP extensions
+	if (CGOptions::parallel_for())
+		m[pArrayVariableParallelForProb] = 45;
+	else
+		m[pArrayVariableParallelForProb] = 0;
 
 	std::map<ProbName, int>::iterator i;
 	for (i = m.begin(); i != m.end(); ++i) {

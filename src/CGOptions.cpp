@@ -197,7 +197,9 @@ DEFINE_GETTER_SETTER_BOOL(cpp11);
 DEFINE_GETTER_SETTER_BOOL(fast_execution);
 
 //OpenMP extensions
+DEFINE_GETTER_SETTER_BOOL(parallel_programs);
 DEFINE_GETTER_SETTER_BOOL(canonical_loops);
+DEFINE_GETTER_SETTER_BOOL(parallel_for);
 
 void
 CGOptions::set_default_builtin_kinds()
@@ -312,7 +314,9 @@ CGOptions::set_default_settings(void)
 	set_default_builtin_kinds();
 
 	//OpenMP extensions defaults
+	parallel_programs(false);
 	canonical_loops(false);
+	parallel_for(false);
 }
 
 // Add options necessary for cpp 

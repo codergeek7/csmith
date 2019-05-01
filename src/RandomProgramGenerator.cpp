@@ -210,6 +210,7 @@ static void print_help()
 
 	//OpenMP extensions
 	cout << "  --canonical-loops | --no-canonical-loops: enable | disable to generate canonical for/while loops as per OMP specification 5.0 (disabled by default)." << endl << endl;
+	cout << "  --parallel-for | --no-parallel-for: enable | disable to generate parallel for loop on arrayvariables only (disable by default)" << endl << endl;
 
 }
 
@@ -1405,10 +1406,22 @@ main(int argc, char **argv)
 		//parsing OpenMP commandlines
 		if (strcmp (argv[i], "--canonical-loops" ) == 0){
 			CGOptions::canonical_loops(true);
+			CGOptions::parallel_programs(true);
 			continue;
 		}
 		if (strcmp(argv[i], "--no-canonical-loops" ) == 0){
 			CGOptions::canonical_loops(false);
+			CGOptions::parallel_programs(false);
+			continue;
+		}
+		if (strcmp (argv[i], "--parallel-for" ) == 0){
+			CGOptions::parallel_for(true);
+			CGOptions::parallel_programs(true);
+			continue;
+		}
+		if (strcmp(argv[i], "--no-parallel-for" ) == 0){
+			CGOptions::parallel_for(false);
+			CGOptions::parallel_programs(false);
 			continue;
 		}
 		// OMIT help

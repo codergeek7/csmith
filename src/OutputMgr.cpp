@@ -150,7 +150,7 @@ OutputMgr::OutputMain(std::ostream &out)
 
 	// output initializers for global array variables
 	OutputArrayInitializers(*VariableSelector::GetGlobalVariables(), out, 1);
-
+	out << "    omp_set_num_threads(NUM_THREADS);\n";
 	if (CGOptions::blind_check_global()) {
 		ExtensionMgr::OutputFirstFunInvocation(out, invoke);
 		std::vector<Variable *>& vars = *VariableSelector::GetGlobalVariables();
@@ -344,6 +344,11 @@ OutputMgr::OutputHeader(int argc, char *argv[], unsigned long seed)
 	ExtensionMgr::OutputHeader(out);
 
 	out << runtime_include << endl;
+
+	if (CGOptions::parallel_programs()){
+		out << "#include <omp.h>\n";
+		out << "#define NUM_THREADS 4\n";
+	}
 
  	if (!CGOptions::compute_hash()) {
 		if (CGOptions::allow_int64())

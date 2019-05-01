@@ -760,10 +760,16 @@ ArrayVariable::output_checksum_with_indices(std::ostream &out,
 	}
 */
 void
-ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent) const
+ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent, bool parallel_for) const
 {
 	if (collective != 0) return;
 	size_t i;
+	if (parallel_for){
+		outputln(out);
+        	output_tab (out, indent);
+	        out << "#pragma omp parallel for";
+        	outputln(out);
+	}
 	//prints the 'for part'
 	for (i=0; i<get_dimension(); i++) {
 		if (i > 0) {

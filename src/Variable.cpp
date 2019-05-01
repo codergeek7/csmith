@@ -1047,14 +1047,22 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 
 		//prints int i,j,k; part before loop
 		OutputArrayCtrlVars(ctrl_vars, out, dimen, indent);
-		//due to printing of above control vars before, we get situation where only
-		//int i,k,j printed but no loops below.
-
+		//due to printing of above control vars before, we get random code where only
+		//int i,k,j printed but no loops are present below.
+		bool flag=false;
+		if (CGOptions::parallel_for()) {//if command line set
+			flag = true;
+		}
 		for (i=0; i<vars.size(); i++) {
 			if (vars[i]->isArray) {
 				ArrayVariable* av = (ArrayVariable*)(vars[i]);
 				if (!av->no_loop_initializer()) {
-					av->output_init(out, av->init, ctrl_vars, indent);
+					bool parallel_for = false;
+					if (flag){
+						if (rnd_flipcoin(ArrayVariableParallelForProb))
+							parallel_for= true;
+					}
+					av->output_init(out, av->init, ctrl_vars, indent, parallel_for);
 				}
 			}
 		}

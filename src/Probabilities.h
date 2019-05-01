@@ -65,6 +65,8 @@ enum ProbName {
 	pAccessOnceVariableProb,
 	pInlineFunctionProb,
 	pBuiltinFunctionProb,
+	//OpenMP extensions
+	pArrayVariableParallelForProb,
 
 	// group for statement
 	pStatementProb,
@@ -222,6 +224,9 @@ enum ProbName {
 
 #define BuiltinFunctionProb \
 	Probabilities::get_prob(pBuiltinFunctionProb)
+
+#define ArrayVariableParallelForProb \
+	Probabilities::get_prob(pArrayVariableParallelForProb)
 
 //////////////////////////////////////////////////
 #define UNARY_OPS_PROB_FILTER \

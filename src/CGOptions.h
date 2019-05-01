@@ -460,8 +460,15 @@ public:
   static bool fast_execution(void);
   static bool fast_execution(bool p);
 
+	//OpenMP extensions
+	static bool parallel_programs ();
+	static bool parallel_programs (bool p);
+
 	static bool canonical_loops ();
 	static bool canonical_loops (bool p);
+
+	static bool parallel_for ();
+	static bool parallel_for (bool p);
 private:
 	static bool enabled_builtin_kind(const string &kind);
 
@@ -607,7 +614,9 @@ private:
 	static bool cpp11_;
 
 	//OpenMP extensions indicating flags
+	static bool parallel_programs_;
 	static bool canonical_loops_;
+	static bool parallel_for_;
 private:
 	CGOptions(void);
 	CGOptions(CGOptions &cgo);
