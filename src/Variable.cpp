@@ -1058,11 +1058,16 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 				ArrayVariable* av = (ArrayVariable*)(vars[i]);
 				if (!av->no_loop_initializer()) {
 					bool parallel_for = false;
+					bool collapse = false;
 					if (flag){
-						if (rnd_flipcoin(ArrayVariableParallelForProb))
+						if (rnd_flipcoin(ArrayVariableParallelForProb)){
 							parallel_for= true;
+							//setting clauses
+							if (CGOptions::parallel_for_collapse())
+								collapse = true;
+						}
 					}
-					av->output_init(out, av->init, ctrl_vars, indent, parallel_for);
+					av->output_init(out, av->init, ctrl_vars, indent, parallel_for, collapse);
 				}
 			}
 		}
