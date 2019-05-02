@@ -210,7 +210,8 @@ static void print_help()
 
 	//OpenMP extensions
 	cout << "  --canonical-loops | --no-canonical-loops: enable | disable to generate canonical for/while loops as per OMP specification 5.0 (disabled by default)." << endl << endl;
-	cout << "  --parallel-for | --no-parallel-for: enable | disable to generate parallel for loop on arrayvariables only (disable by default)" << endl << endl;
+	cout << "  --parallel-for <clauses> | --no-parallel-for: enable | disable to generate parallel for loop on arrayvariables only (disable by default)" << endl << endl;
+	cout << "  clauses : order | collapse | schedule" << endl << endl;
 
 }
 
@@ -1413,15 +1414,23 @@ main(int argc, char **argv)
 			CGOptions::canonical_loops(false);
 			continue;
 		}
-		if (strcmp (argv[i], "--parallel-for" ) == 0){
+		if (strcmp (argv[i], "--parallel-for") == 0) {
+			CGOptions::parallel_programs(true);//outputs omp.h
 			CGOptions::parallel_for(true);
-			CGOptions::parallel_programs(true);
+
+			//clauses are set inside parse_parallel_for_clauses() below
+			string parallel_for_clauses;
+			i++;
+			arg_check(argc, i);
+			if (!parse_string_arg(argv[i], parallel_for_clauses)) {
+				cout<< "please specify names of the clauses to parallel for" << std::endl;
+				exit(-1);
+			}
+			//this does parsing internally but needs validation
+			CGOptions::parse_parallel_for_clauses(parallel_for_clauses);
 			continue;
 		}
-		if (strcmp(argv[i], "--no-parallel-for" ) == 0){
-			CGOptions::parallel_for(false);
-			continue;
-		}
+
 		// OMIT help
 
 		// OMIT compute-hash

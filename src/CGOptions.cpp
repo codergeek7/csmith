@@ -200,6 +200,9 @@ DEFINE_GETTER_SETTER_BOOL(fast_execution);
 DEFINE_GETTER_SETTER_BOOL(parallel_programs);
 DEFINE_GETTER_SETTER_BOOL(canonical_loops);
 DEFINE_GETTER_SETTER_BOOL(parallel_for);
+	DEFINE_GETTER_SETTER_BOOL(parallel_for_order);//clauses
+	DEFINE_GETTER_SETTER_BOOL(parallel_for_schedule);//clauses
+	DEFINE_GETTER_SETTER_BOOL(parallel_for_collapse);//clauses
 
 void
 CGOptions::set_default_builtin_kinds()
@@ -317,6 +320,9 @@ CGOptions::set_default_settings(void)
 	parallel_programs(false);
 	canonical_loops(false);
 	parallel_for(false);
+		parallel_for_order(false);	//clauses
+		parallel_for_collapse(false);	//clauses
+		parallel_for_schedule(false);	//clauses
 }
 
 // Add options necessary for cpp 
@@ -588,6 +594,56 @@ CGOptions::monitored_funcs(std::string fnames)
 	parse_string_options(fnames, OutputMgr::monitored_funcs_);
 }
 
+void
+CGOptions::parse_parallel_for_clauses(std::string p_clauses)
+{
+	vector <std::string> clauses_;
+	//parsed clauses are in clauses_
+	parse_string_options(p_clauses, clauses_);
+	//needs validation
+	for (int i=0; i < clauses_.size(); i++){
+		if(!( (clauses_[i].compare("all") ==0) || (clauses_[i].compare("none") ==0) || (clauses_[i].compare("schedule") ==0) || (clauses_[i].compare("order") ==0) || (clauses_[i].compare("collapse") ==0) )){
+			cout << "\nOops! clauses be order|schedule|collapse";
+			clauses_.clear();//clearing the vector
+			exit (-1);
+		}
+	}
+	vector <std::string>::iterator itr_all = find (clauses_.begin(), clauses_.end(), "all");
+	vector <std::string>::iterator itr_none = find (clauses_.begin(), clauses_.end(), "none");
+	if ( (itr_all!=clauses_.end()) &&  (itr_none!=clauses_.end()) ){//all, none
+		cout  << "\nclause conflict, all and none cannot be together";
+		exit(-1);
+	}
+	else if ((itr_all!=clauses_.end()) &&  (itr_none==clauses_.end()))//all
+	{
+		CGOptions::parallel_for_order (true);
+		CGOptions::parallel_for_schedule (true);
+		CGOptions::parallel_for_collapse (true);
+	}
+	else if ((itr_all==clauses_.end()) &&  (itr_none!=clauses_.end()))//none
+	{
+		//nothing to do
+		CGOptions::parallel_for_order (false);
+		CGOptions::parallel_for_schedule (false);
+		CGOptions::parallel_for_collapse (false);
+	}
+	//setting clauses(order| schedule| collapse)
+	else if( (itr_all==clauses_.end() && itr_none==clauses_.end()) )
+	{
+		vector <std::string>::iterator itr_order = find (clauses_.begin(), clauses_.end(), "order");
+		if (itr_order!=clauses_.end()){
+			CGOptions::parallel_for_order (true);
+		}
+		vector <std::string>::iterator itr_schedule = find (clauses_.begin(), clauses_.end(), "schedule");
+		if (itr_schedule!=clauses_.end()){
+			CGOptions::parallel_for_schedule (true);
+		}
+		vector <std::string>::iterator itr_collapse = find (clauses_.begin(), clauses_.end(), "collapse");
+		if (itr_collapse!=clauses_.end()){
+			CGOptions::parallel_for_collapse (true);
+		}
+	}
+}
 void
 CGOptions::parse_string_options(string vname, vector<std::string> &v)
 {

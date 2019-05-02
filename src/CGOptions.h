@@ -469,6 +469,15 @@ public:
 
 	static bool parallel_for ();
 	static bool parallel_for (bool p);
+			static bool parallel_for_order ();//order
+			static bool parallel_for_order (bool p);
+			static bool parallel_for_schedule ();//schedule
+			static bool parallel_for_schedule (bool p);
+			static bool parallel_for_collapse ();//collapse
+			static bool parallel_for_collapse (bool p);
+
+	static void parse_parallel_for_clauses(string p_caluses);
+
 private:
 	static bool enabled_builtin_kind(const string &kind);
 
@@ -616,7 +625,12 @@ private:
 	//OpenMP extensions indicating flags
 	static bool parallel_programs_;
 	static bool canonical_loops_;
+
 	static bool parallel_for_;
+		static bool parallel_for_order_;//clauses associated
+		static bool parallel_for_schedule_;
+		static bool parallel_for_collapse_;
+
 private:
 	CGOptions(void);
 	CGOptions(CGOptions &cgo);
