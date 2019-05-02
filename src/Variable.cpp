@@ -1059,15 +1059,18 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 				if (!av->no_loop_initializer()) {
 					bool parallel_for = false;
 					bool collapse = false;
+					bool schedule = false;
 					if (flag){
 						if (rnd_flipcoin(ArrayVariableParallelForProb)){
 							parallel_for= true;
 							//setting clauses
 							if (CGOptions::parallel_for_collapse())
 								collapse = true;
+							if (CGOptions::parallel_for_schedule())
+								schedule = true;
 						}
 					}
-					av->output_init(out, av->init, ctrl_vars, indent, parallel_for, collapse);
+					av->output_init(out, av->init, ctrl_vars, indent, parallel_for, collapse, schedule);
 				}
 			}
 		}

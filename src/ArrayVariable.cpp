@@ -760,7 +760,7 @@ ArrayVariable::output_checksum_with_indices(std::ostream &out,
 	}
 */
 void
-ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent, bool parallel_for, bool collapse) const
+ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent, bool parallel_for, bool collapse, bool schedule) const
 {
 	if (collective != 0) return;
 	size_t i;
@@ -780,6 +780,24 @@ ArrayVariable::output_init(std::ostream &out, const Expression* init, const vect
 		if (collapse){
 			if (get_dimension() > 1)
 				out << "  collapse" << "(" << get_dimension() << ")" ;
+		}
+		if (schedule){
+			out << " schedule(" ;
+			switch(rnd_upto(4)){
+				case 0:
+					out << "static";
+				break;
+				case 1:
+					out << "dynamic";
+				break;
+				case 2:
+					out << "guided";
+				break;
+				case 3:
+					out << "auto";
+				break;
+			}
+			out << ")" ;
 		}
 
         	outputln(out);
