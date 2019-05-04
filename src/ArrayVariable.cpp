@@ -760,7 +760,7 @@ ArrayVariable::output_checksum_with_indices(std::ostream &out,
 	}
 */
 void
-ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent, bool parallel_for, bool collapse, bool schedule) const
+ArrayVariable::output_init(std::ostream &out, const Expression* init, const vector<const Variable*>& cvs, int indent, bool parallel_for, bool collapse, bool schedule, bool order) const
 {
 	if (collective != 0) return;
 	size_t i;
@@ -799,16 +799,20 @@ ArrayVariable::output_init(std::ostream &out, const Expression* init, const vect
 			}
 			out << ")" ;
 		}
+		if (order)
+			out << " ordered" ;
 
         	outputln(out);
 	}
 	//prints the 'for part'
 	for (i=0; i<get_dimension(); i++) {
-		if (i > 0) {
-			output_tab(out, indent);
-			out << "{";
-			outputln(out);
-			indent++;
+		if (!order){
+			if (i > 0) {
+				output_tab(out, indent);
+				out << "{";
+				outputln(out);
+				indent++;
+			}
 		}
 		output_tab(out, indent);
 		out << "for (";
@@ -823,8 +827,18 @@ ArrayVariable::output_init(std::ostream &out, const Expression* init, const vect
 		else {
 			out << " = " << cvs[i]->get_actual_name() << " + 1)";
 		}
+		if (order){
+			out << "{";
+			indent++;
+		}
 		outputln(out);
 	}
+	if (order){
+		output_tab(out, indent+1);
+		out << "#pragma omp ordered";
+		outputln(out);
+	}
+	indent++;
 	output_tab(out, indent+1);
 	//prints arr[i][j]
 	output_with_indices(out, cvs);
@@ -834,7 +848,11 @@ ArrayVariable::output_init(std::ostream &out, const Expression* init, const vect
 	out << ";";
 	outputln(out);
 	// output the closing bracelets
-	for (i=1; i<get_dimension(); i++) {
+	indent--;
+	int start;
+	//0 indicates order
+	order ? start = 0: start=1;
+	for (i=start; i<get_dimension(); i++) {
 		indent--;
 		output_tab(out, indent);
 		out << "}";

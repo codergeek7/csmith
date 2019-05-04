@@ -1060,6 +1060,7 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 					bool parallel_for = false;
 					bool collapse = false;
 					bool schedule = false;
+					bool order = false;
 					if (flag){
 						if (rnd_flipcoin(ArrayVariableParallelForProb)){
 							parallel_for= true;
@@ -1068,9 +1069,11 @@ OutputArrayInitializers(const vector<Variable*>& vars, std::ostream &out, int in
 								collapse = true;
 							if (CGOptions::parallel_for_schedule())
 								schedule = true;
+							if (CGOptions::parallel_for_order())
+								order = true;
 						}
 					}
-					av->output_init(out, av->init, ctrl_vars, indent, parallel_for, collapse, schedule);
+					av->output_init(out, av->init, ctrl_vars, indent, parallel_for, collapse, schedule, order);
 				}
 			}
 		}
