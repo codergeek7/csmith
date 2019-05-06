@@ -39,16 +39,16 @@ use File::stat;
 my $MIN_PROGRAM_SIZE = 8000;
 
 # kill Csmith after this many seconds
-my $CSMITH_TIMEOUT = 90; 
+my $CSMITH_TIMEOUT = 190; 
 
 # kill a compiler after this many seconds
-my $COMPILER_TIMEOUT = 120;
+my $COMPILER_TIMEOUT = 230;#extensions need more time
 
 # kill a compiler's output after this many seconds
 my $PROG_TIMEOUT = 8;
 
 # extra options here
-my $CSMITH_USER_OPTIONS = " --bitfields --packed-struct"; 
+my $CSMITH_USER_OPTIONS = " --parallel-for collapse,schedule --max-array-dim 10 --max-array-len-per-dim 256 ";
 
 ################# end user-configurable stuff ###################
 #################################################################
@@ -74,7 +74,7 @@ my $csmith_bug = 0;
 
 my $HEADER = "-I$CSMITH_HOME/runtime";
 my $CYGWIN_HEADER = "-I`cygpath -d ${CSMITH_HOME}/runtime`";
-my $COMPILE_OPTIONS = "";
+my $COMPILE_OPTIONS = "-fopenmp";
 my @COMPILERS;
 
 sub read_value_from_file($$) {
@@ -257,7 +257,7 @@ sub test_one ($) {
         }
     }
 
-    print "seed= $seed, size= $filesize\n";
+    print "\nseed= $seed, size= $filesize\n";
     
     # test if the random program is interesting
     my $ret = evaluate_program($cfile); 
@@ -282,7 +282,7 @@ sub test_one ($) {
 }
 
 sub usage () {
-    print "usage: compiler_test.pl <test_case_count>(0 for unlimited) <config-file>\n";
+    print "usage: compiler_test.pl <test_case_count>(0 for unlimited) <config-file> [--with-wrong-code-bugs]\n";
     exit -1;
 }
 

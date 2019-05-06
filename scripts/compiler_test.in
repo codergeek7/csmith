@@ -1,8 +1,10 @@
-gcc -O0
-gcc -O1
-gcc -O2
-gcc -Os
-gcc -O3
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -O0
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -O1
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -O2
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -O3
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -Os
+~/cherry-pick/gnu-toolchain/gcc/gcc_9/bin/gcc -Ofast
+
 clang -O0
 clang -O1
 clang -O2
