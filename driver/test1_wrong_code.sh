@@ -41,7 +41,7 @@ if
   ! grep 'incompatible pointer to' out_clang.txt &&\
   ! grep 'incompatible integer to' out_clang.txt &&\
   ! grep 'type specifier missing' out_clang.txt &&\
-  RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small1.txt ./smallz &&\
+  ./RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small1.txt ./smallz &&\
   gcc -Wall -Wextra -O1 small.c -o smallz >out_gcc.txt 2>&1 &&\
   ! grep 'uninitialized' out_gcc.txt &&\
   ! grep 'without a cast' out_gcc.txt &&\
@@ -62,9 +62,9 @@ if
   ! grep 'excess elements in struct initializer' out_gcc.txt &&\
   ! grep 'comparison between pointer and integer' out_gcc.txt &&\
   XX_COMMAND XX_OPT small.c -o small1 > /dev/null 2>&1 &&\
-  RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small1.txt ./small1 &&\
+  ./RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small1.txt ./small1 &&\
   XX_COMMAND XX_GOOD small.c -o small2 > /dev/null 2>&1 &&\
-  RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small2.txt ./small2 &&\
+  ./RunSafely ${PROG_TIMEOUT} 1 /dev/null out_small2.txt ./small2 &&\
   ! diff out_small1.txt out_small2.txt &&\
   # these options assume Frama-C Fluorine and a 64-bit machine
   frama-c -cpp-command 'gcc -C -Dvolatile= -E -I.' -val -no-val-show-progress -machdep x86_64 -obviously-terminates small.c > out_framac.txt 2>&1 &&\
