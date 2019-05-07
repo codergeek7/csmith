@@ -14,6 +14,10 @@
                   Project page containing simple kanban style project management can be found:
                   https://github.com/Sameeranjoshi?tab=projects
                   
+                  I Wrote a blog,Using TSan(ThreadSanitizer) find data races while implementing these extensions 
+                  and suppressing false positives from TSan.
+                  https://medium.com/@joshisameeran/using-tsan-threadsanitizer-and-ways-to-avoid-false-sharing-in-clang-and-gcc-15fae5283ad1
+                  
                   If you wish to further implement more extensions to the branch you are welcome to start exploring it.
                   Happy Hacking!!!
                   
