@@ -4,12 +4,15 @@
                   This branch contains documentation for Csmith which cannot be found in (Original Csmith)
                   https://github.com/csmith-project/csmith.
                   
-                  This branch was created with aim of merging OPenMP extensions to Csmith as a GSoC project idea for GCC.
+                  This branch was created with aim of merging OPenMP extensions to Csmith as a GSoC project idea forGCC.
                   You can find commits and command line options implemented using ./csmith --help 
                   
                   A proposal related to some OpenMP extensions which are possible to implement in Csmith,
                   time for each extension, learning resources and challenges can be found :
                   https://docs.google.com/document/d/1GULi91O4sj3hGOiTn0NqnEGZNnZDKpX_7cxZ53Fku00/edit?usp=sharing
+                  
+                  Project page containing simple kanban style project management can be found:
+                  https://github.com/Sameeranjoshi?tab=projects
                   
                   If you wish to further implement more extensions to the branch you are welcome to start exploring it.
                   Happy Hacking!!!
