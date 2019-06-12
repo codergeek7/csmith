@@ -127,6 +127,7 @@ find_function_in_set(const vector<const Function*>& set, const Function* f)
 const Block*
 find_blk_for_var(const Variable* v)
 {
+//Added computed goto
 	if (v->is_global()) {
 		return NULL;
 	}
