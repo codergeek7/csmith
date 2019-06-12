@@ -125,6 +125,7 @@ public:
 
 	//GCC C Extensions
 	//always_inline
+	//aligned
 
 private:
 	static int deleteFunction(Function* func);
